@@ -8,7 +8,7 @@ export default
 function qEncode (data: Uint8Array, encodeAll: boolean = false): string {
     if (encodeAll) {
         return (data as unknown as number[]).map(
-            (byte: number): string => `=${byte.toString(16).padStart(2, "0")}`
+            (byte: number): string => `=${byte.toString(16).padStart(2, "0")}`,
         ).join("");
     } else {
         return (data as unknown as number[]).map(
@@ -21,7 +21,7 @@ function qEncode (data: Uint8Array, encodeAll: boolean = false): string {
                 } else {
                     return `=${byte.toString(16).padStart(2, "0")}`;
                 }
-            }
+            },
         ).join("");
     }
 }
