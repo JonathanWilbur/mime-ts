@@ -1,0 +1,68 @@
+{
+    "bugs": {
+        "email": "jonathan@wilbur.space"
+    },
+    "contributors": [
+        {
+            "email": "jonathan@wilbur.space",
+            "name": "Jonathan M. Wilbur",
+            "url": "https://github.com/JonathanWilbur"
+        }
+    ],
+    "description": "MIME Messages, as defined in IETF RFCs 2045-2049.",
+    "devDependencies": {
+        "@babel/core": "^7.8.4",
+        "@babel/preset-env": "^7.8.4",
+        "@babel/preset-typescript": "^7.8.3",
+        "@types/base64-js": "^1.2.5",
+        "@types/benchmark": "^1.0.31",
+        "@types/node": "^13.7.4",
+        "@typescript-eslint/eslint-plugin": "^2.20.0",
+        "@typescript-eslint/parser": "^2.20.0",
+        "babel-jest": "^25.1.0",
+        "benchmark": "^2.1.4",
+        "eslint": "^6.8.0",
+        "jest": "^25.1.0",
+        "jest-junit": "^10.0.0",
+        "npm-check-updates": "^4.0.1",
+        "serverless": "^1.64.0",
+        "sloc": "^0.2.1",
+        "ts-loader": "^6.2.1",
+        "typescript": "^3.8.2",
+        "webpack": "^4.41.6",
+        "webpack-cli": "^3.3.11"
+    },
+    "directories": {
+        "doc": "documentation",
+        "test": "test"
+    },
+    "files": [
+        "dist/**/*"
+    ],
+    "keywords": [
+        "mime",
+        "email",
+        "message",
+        "multimedia",
+        "smtp"
+    ],
+    "license": "MIT",
+    "main": "./dist/index.js",
+    "name": "mime-ts",
+    "scripts": {
+        "benchmark": "node ./test/benchmark.js",
+        "breaking-update": "npx ncu -u && npm install",
+        "build": "npx tsc && npx webpack",
+        "clean": "rm -rf dist; mkdir -p dist",
+        "deploy-functions": "npx sls deploy",
+        "line-count": "npx sloc source",
+        "lint": "npx eslint --config .eslintrc.yml './source/**/*.ts' || true",
+        "remove-functions": "npx sls remove",
+        "test": "npx jest --ci --reporters=default --reporters=jest-junit --coverage"
+    },
+    "types": "./dist/index.d.ts",
+    "version": "0.1.0",
+    "dependencies": {
+        "base64-js": "^1.3.1"
+    }
+}

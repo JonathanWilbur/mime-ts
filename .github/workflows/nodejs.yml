@@ -1,0 +1,52 @@
+name: Node CI
+
+on: [push]
+
+jobs:
+  # This only works on public repositories.
+  check-urls:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check URLs
+        uses: paramt/url-checker@master
+        with:
+          files: "README.md,SUPPORT.md"
+  # generate-uuid:
+  #   runs-on: ubuntu-latest
+  #   name: Create UUID
+  #   steps:
+  #     - name: Set UUID
+  #       id: generate-uuid
+  #       uses: filipstefansson/uuid-action@v1
+  #       with:
+  #         name: ${{ gihub.sha }}
+  #     - name: Get the UUID
+  #       run: echo "UUID is ${{ steps.generate-uuid.outputs.uuid }}"
+  # verify-json-validation:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - name: Validate JSON
+  #       uses: docker://orrosenblatt/validate-json-action:latest
+  #       env:
+  #         INPUT_SCHEMA: /path/to/schema.json
+  #         INPUT_JSONS: /path/to/file.json,/path/to/another/file.json
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build, and test
+      run: |
+        npm install
+        npm run lint --if-present
+        npm run build --if-present
+        npm test
+      env:
+        CI: true
