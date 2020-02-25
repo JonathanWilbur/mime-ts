@@ -1,17 +1,8 @@
 import bDecode from "./bDecode";
 import qDecode from "./qDecode";
-import rfc2047EncodedWordRegExp from "../rfc2047EncodedWordRegExp";
 
 export default
-function decodeEncodedWord (str: string): string {
-    const match: RegExpExecArray | null = rfc2047EncodedWordRegExp.exec(str);
-    if (!match) {
-        throw new Error("Malformed RFC 2047-encoded word.");
-    }
-    const charset: string = match[1];
-    const encoding: string = match[2];
-    const encodedText: string = match[3];
-
+function decodeEncodedWord (charset: string, encoding: string, encodedText: string): string {
     const encodedBytes: Uint8Array = ((): Uint8Array => {
         switch (encoding.toUpperCase()) {
         case ("B"): {
@@ -25,7 +16,6 @@ function decodeEncodedWord (str: string): string {
         }
         }
     })();
-
 
     if (typeof TextDecoder !== "undefined") {
         let decoder: TextDecoder;

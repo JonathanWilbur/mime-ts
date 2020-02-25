@@ -7,13 +7,14 @@ export default
 function qDecode (data: string): Uint8Array {
     const ret: number[] = [];
     for (let i: number = 0; i < data.length; i++) {
-        if (data[i] === "=") {
-            const hexByte: string = `${data[i++]}${data[i++]}`;
+        if (data[i] === "=" && data.length > (i + 2)) {
+            const hexByte: string = `${data[i + 1]}${data[i + 2]}`;
             const byte: number = parseInt(hexByte, 16);
             if (Number.isNaN(byte)) {
-                throw new Error(`Invalid hex byte having code points: ${data[i-2]} ${data[i-1]}`);
+                throw new Error(`Invalid hex byte: ${hexByte}`);
             }
             ret.push(byte);
+            i += 2;
         } else {
             ret.push(data[i].charCodeAt(0));
         }

@@ -1,3 +1,3 @@
-const rfc2047EncodedWordRegExp: RegExp = /=\?((\p{L}|\p{N})+)\?((\p{L}|\p{N})+)\?([^ ?]+)\?=/u;
+const rfc2047EncodedWordRegExp: RegExp = /^=\?(.+)\?(B|Q)\?(.+)\?=/i;
 
 export default rfc2047EncodedWordRegExp;

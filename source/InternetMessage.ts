@@ -1,40 +1,13 @@
-import { Group, } from "./Group";
-import { Header, } from "./Header";
-import { Mailbox, } from "./Mailbox";
-import { MessageID, } from "./MessageID";
-import rfc2047EncodedWordRegExp from "./rfc2047EncodedWordRegExp";
-import decodeEncodedWord from "./Commands/decodeEncodedWord";
+import { Group } from "./Group";
+import { Header } from "./Header";
+import { Mailbox } from "./Mailbox";
+import { MessageID } from "./MessageID";
+import decodeNonASCIIText from "./Commands/rfc2047Decode";
 
 export
 class InternetMessage {
     public headers: Header[] = [];
     public body: string = "";
-
-    /**
-     * It is not sufficient to split by whitespace, because encoded words can
-     * occur next to brackets, quotes, commas, periods, etc.
-     *
-     * @param str {string} The string that may or may not contain RFC 2047-encoded words.
-     */
-    private static *decodeNonASCIIText (str: string): IterableIterator<string> {
-        let i: number = 0;
-        while (i < str.length) {
-            const match: RegExpExecArray | null = rfc2047EncodedWordRegExp.exec(str.slice(i));
-            if (!match) {
-                yield str.slice(i);
-                return;
-            }
-            if (match.index !== i) {
-                yield str.slice(i, match.index);
-            }
-            try {
-                yield decodeEncodedWord(match[0]);
-            } catch (e) { // If there is an error, we just want to yield the non-decoded word.
-                yield match[0];
-            }
-            i = (match.index + match[0].length);
-        }
-    }
 
     /**
      * This method assumes no newlines in `headerField`.
@@ -56,10 +29,9 @@ class InternetMessage {
             }
         }
 
+        // REVIEW: I am not really sure that the header _name_ is permitted to contain these tokens.
         const headerName: string = Array.from(
-            InternetMessage.decodeNonASCIIText(
-                headerField.slice(0, endOfHeaderName)
-            )
+            decodeNonASCIIText(headerField.slice(0, endOfHeaderName)),
         ).join("");
 
         /**
@@ -70,7 +42,9 @@ class InternetMessage {
          * See RFC 2047, Section 5 for examples of such restrictions.
          */
 
-        const headerValue = headerField.slice(endOfHeaderName + 1);
+        const headerValue = Array.from(
+            decodeNonASCIIText(headerField.slice(endOfHeaderName + 1)),
+        ).join("");
         return new Header(headerName, headerValue);
     }
 
