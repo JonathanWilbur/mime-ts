@@ -2,6 +2,10 @@
  * Q-Decode data, per RFC 2047, Section 4.2, which, in turn, references
  * the Quoted-Printable encoding defined in RFC 2045, Section 6.7.
  * @param string The Q-encoded string to be decoded.
+ *
+ * Note that this function is specific to the header tokens described in
+ * IETF RFC 2047. It MUST NOT be used for Quoted-Printable decoding, which
+ * is described in IETF RFC 2045.
  */
 export default
 function qDecode (data: string): Uint8Array {
@@ -15,6 +19,14 @@ function qDecode (data: string): Uint8Array {
             }
             ret.push(byte);
             i += 2;
+        } else if (data[i] === "_") {
+            /**
+             * From IETF RFC 2047, Section 4.2:
+             * "Note that the "_" always represents hexadecimal 20, even if the
+             * SPACE character occupies a different code position in the
+             * character set in use."
+             */
+            ret.push(20);
         } else {
             ret.push(data[i].charCodeAt(0));
         }

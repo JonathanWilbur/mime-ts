@@ -15,12 +15,18 @@ enum ParserState {
  * @param str {string} The string that may or may not contain RFC 2047-encoded words.
  */
 export default
-function *decodeNonASCIIText (str: string): IterableIterator<string> {
+function *rfc2047Decode (str: string): IterableIterator<string> {
+    // For performance, we quickly exit this function if no interesting tokens are present.s
+    if (str.indexOf("?") === -1 || str.indexOf("=") === -1) {
+        yield str;
+        return;
+    }
     let state: ParserState = ParserState.text;
     let tokenStartIndex: number = 0;
     let charset: string = "";
     let encoding: string = "";
     let encodedText: string = "";
+    let lastTokenWasEncoded: boolean = false;
 
     let i: number = 0;
     while (i < str.length) {
@@ -29,7 +35,18 @@ function *decodeNonASCIIText (str: string): IterableIterator<string> {
             if (i > 0 && str[i] === "?" && str[i - 1] === "=") {
                 state = ParserState.charset;
                 tokenStartIndex = i + 1;
-                yield str.slice(tokenStartIndex, (i - 1));
+                const token: string = str.slice(tokenStartIndex, (i - 1));
+
+                /**
+                 * This prevents this mini-lexer from emiting whitespace
+                 * between RFC 2047-encoded tokens.
+                 */
+                if (lastTokenWasEncoded && /^\s+$/.test(token)) {
+                    yield "";
+                } else {
+                    yield token;
+                    lastTokenWasEncoded = false;
+                }
             }
             break;
         }
@@ -50,11 +67,17 @@ function *decodeNonASCIIText (str: string): IterableIterator<string> {
             break;
         }
         case (ParserState.encodedText): {
-            if (str[i] === "=" && str[i - 1] === "?") {
+            /**
+             * The 'i !== tokenStartIndex' is to prevent encoded text starting
+             * with an encoded byte (and hence, an equal sign) from being
+             * interpreted as the end of the encoded text.
+             */
+            if (i !== tokenStartIndex && str[i] === "=" && str[i - 1] === "?") {
                 state = ParserState.text;
                 encodedText = str.slice(tokenStartIndex, (i - 1));
                 tokenStartIndex = i + 1;
                 yield decodeEncodedWord(charset, encoding, encodedText);
+                lastTokenWasEncoded = true;
             }
             break;
         }
@@ -64,8 +87,5 @@ function *decodeNonASCIIText (str: string): IterableIterator<string> {
         }
         i++;
     }
-    if (tokenStartIndex !== str.length) {
-        yield str.slice(tokenStartIndex);
-    }
-    return;
+    yield str.slice(tokenStartIndex);
 }

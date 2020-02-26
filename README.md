@@ -6,6 +6,6 @@
 
 ## To Do
 
-- [ ] RFC 2047 MIME Header Tokens
-  - [ ] Remove adjacent whitespace between them.
-  - [ ] Replace _ with char 0x20 in Q-encoding (Warning: this might only apply to RFC 2047 tokens.)
+- [x] RFC 2047 MIME Header Tokens
+  - [x] Remove adjacent whitespace between them.
+  - [x] Replace _ with char 0x20 in Q-encoding (Warning: this might only apply to RFC 2047 tokens.)
